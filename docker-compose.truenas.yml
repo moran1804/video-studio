@@ -64,7 +64,7 @@ services:
         limits: { memory: 512m }
 
   migrate:
-    image: ghcr.io/OWNER/video-studio-worker:latest
+    image: ghcr.io/moran1804/video-studio-worker:latest
     restart: 'no'
     user: '568:568'
     command: ['node', 'apps/worker/dist/migrate.js']
@@ -79,7 +79,7 @@ services:
       disable: true
 
   worker:
-    image: ghcr.io/OWNER/video-studio-worker:latest
+    image: ghcr.io/moran1804/video-studio-worker:latest
     restart: unless-stopped
     user: '568:568'
     env_file: /mnt/tank/apps/video-studio/config/studio.env
@@ -96,7 +96,7 @@ services:
         limits: { cpus: '4', memory: 4g }
 
   web:
-    image: ghcr.io/OWNER/video-studio-web:latest
+    image: ghcr.io/moran1804/video-studio-web:latest
     restart: unless-stopped
     user: '568:568'
     env_file: /mnt/tank/apps/video-studio/config/studio.env
