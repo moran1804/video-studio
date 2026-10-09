@@ -1,0 +1,58 @@
+{
+  "name": "@studio/core",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./config": "./src/config.ts",
+    "./logger": "./src/logger.ts",
+    "./errors": "./src/errors.ts",
+    "./db": "./src/db/index.ts",
+    "./db/schema": "./src/db/schema.ts",
+    "./db/migrate": "./src/db/migrate.ts",
+    "./redis": "./src/redis.ts",
+    "./queues": "./src/queues.ts",
+    "./storage": "./src/storage.ts",
+    "./timeline": "./src/timeline.ts",
+    "./captions": "./src/captions.ts",
+    "./brand": "./src/brand.ts",
+    "./status": "./src/status.ts",
+    "./settings": "./src/settings.ts",
+    "./schemas": "./src/schemas/index.ts",
+    "./security/paths": "./src/security/paths.ts",
+    "./security/ssrf": "./src/security/ssrf.ts",
+    "./security/upload": "./src/security/upload.ts",
+    "./security/crypto": "./src/security/crypto.ts",
+    "./security/password": "./src/security/password.ts",
+    "./security/redact": "./src/security/redact.ts",
+    "./security/rate-limit": "./src/security/rate-limit.ts",
+    "./providers/http": "./src/providers/http.ts",
+    "./providers/registry": "./src/providers/registry.ts",
+    "./providers/video/*": "./src/providers/video/*.ts",
+    "./providers/llm/openai": "./src/providers/llm/openai.ts",
+    "./providers/tts/elevenlabs": "./src/providers/tts/elevenlabs.ts",
+    "./providers/links": "./src/providers/links.ts",
+    "./ffmpeg/*": "./src/ffmpeg/*.ts",
+    "./jobs/*": "./src/jobs/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "db:generate": "drizzle-kit generate"
+  },
+  "dependencies": {
+    "@node-rs/argon2": "^2.2.1",
+    "bullmq": "^5.81.5",
+    "drizzle-orm": "^0.44.7",
+    "file-type": "^19.6.0",
+    "ioredis": "^5.11.1",
+    "ipaddr.js": "^2.5.0",
+    "pg": "^8.23.0",
+    "pino": "^9.14.0",
+    "undici": "^6.29.0",
+    "zod": "^4.3.3"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.15.0",
+    "drizzle-kit": "^0.31.11"
+  }
+}

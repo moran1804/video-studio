@@ -1,0 +1,44 @@
+{
+  "name": "ai-social-video-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev:web": "npm run dev -w @studio/web",
+    "dev:worker": "npm run dev -w @studio/worker",
+    "build": "npm run build -w @studio/worker && npm run build -w @studio/web",
+    "migrate": "npm run migrate -w @studio/worker",
+    "db:generate": "npm run db:generate -w @studio/core",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test:unit",
+    "test:unit": "vitest run --project unit",
+    "test:integration": "vitest run --project integration --no-file-parallelism",
+    "test:ffmpeg": "vitest run --project ffmpeg --no-file-parallelism",
+    "test:e2e": "npm run test:e2e -w @studio/web",
+    "test:api": "vitest run --project api --no-file-parallelism",
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:ffmpeg",
+    "test:docker": "docker compose -f docker-compose.test.yml up -d --wait postgres-test redis-test && docker compose -f docker-compose.test.yml run --rm --build tests"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@next/eslint-plugin-next": "^15.5.26",
+    "@types/node": "^22.20.4",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^16.0.0",
+    "prettier": "^3.9.9",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^3.2.7"
+  }
+}

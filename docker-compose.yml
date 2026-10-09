@@ -1,0 +1,111 @@
+# AI Social Video Studio – Docker Compose (local build / generic hosts).
+# For TrueNAS SCALE "Install via YAML" use docker-compose.truenas.yml.
+#
+#   cp .env.example .env   # fill in values
+#   docker compose up -d --build
+#
+name: video-studio
+
+x-common: &common
+  restart: unless-stopped
+  env_file: .env
+  user: '${PUID:-568}:${PGID:-568}'
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  logging:
+    driver: json-file
+    options: { max-size: '10m', max-file: '5' }
+
+services:
+  postgres:
+    <<: *common
+    image: postgres:16-bookworm
+    environment:
+      POSTGRES_USER: studio
+      POSTGRES_DB: studio
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ${POSTGRES_PATH:-./.local/postgres}:/var/lib/postgresql/data
+    shm_size: 256mb
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U studio -d studio']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    deploy:
+      resources:
+        limits: { memory: 1g }
+
+  redis:
+    <<: *common
+    image: redis:7-alpine
+    command:
+      [
+        'redis-server',
+        '--appendonly',
+        'yes',
+        '--appendfsync',
+        'everysec',
+        '--save',
+        '60',
+        '1',
+        '--dir',
+        '/data',
+        '--maxmemory-policy',
+        'noeviction',
+      ]
+    volumes:
+      - ${REDIS_PATH:-./.local/redis}:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits: { memory: 512m }
+
+  migrate:
+    <<: *common
+    image: ${WORKER_IMAGE:-video-studio-worker:latest}
+    build: { context: ., target: worker }
+    restart: 'no'
+    command: ['node', 'apps/worker/dist/migrate.js']
+    volumes:
+      - ${DATA_PATH:-./.local/data}:/data
+    depends_on:
+      postgres: { condition: service_healthy }
+    healthcheck:
+      disable: true
+
+  worker:
+    <<: *common
+    image: ${WORKER_IMAGE:-video-studio-worker:latest}
+    build: { context: ., target: worker }
+    volumes:
+      - ${DATA_PATH:-./.local/data}:/data
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    stop_grace_period: 30s
+    deploy:
+      resources:
+        limits: { cpus: '${WORKER_CPUS:-4}', memory: '${WORKER_MEMORY:-4g}' }
+
+  web:
+    <<: *common
+    image: ${WEB_IMAGE:-video-studio-web:latest}
+    build: { context: ., target: web }
+    ports:
+      - '${APP_PORT:-3000}:3000'
+    volumes:
+      - ${DATA_PATH:-./.local/data}:/data
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    deploy:
+      resources:
+        limits: { cpus: '2', memory: 1g }
